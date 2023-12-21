@@ -1,16 +1,28 @@
 const express = require("express");
 const connection = require("./db");
-const Product = require("./models/Users")
-
+const User = require("./models/Users");
 
 const app = express();
 
 app.use(express.json());
 connection();
 
+app.get("/search/:key", async (req, resp) => {
+    console.log(req.params.key);
+    let data = await User.find({
+        $or: [
+            { name: { $regex: req.params.key } },
+            { email: { $regex: req.params.key } },
+            
+        ],
+    });
+
+    resp.send(data);
+});
+
 app.post("/create", async (req, resp) => {
     try {
-        let data = new Product(req.body);
+        let data = new User(req.body);
         let result = await data.save();
 
         console.log(result);
@@ -20,4 +32,4 @@ app.post("/create", async (req, resp) => {
     }
 });
 
-app.listen(4000)
+app.listen(4000);
